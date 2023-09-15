@@ -6,6 +6,7 @@ import com.opencsv.CSVParser.*;
 import com.github.cliftonlabs.json_simple.JsonArray.*;
 import com.github.cliftonlabs.json_simple.JsonObject.*;
 import com.github.cliftonlabs.json_simple.JsonException.*;
+import com.opencsv.CSVReader.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -87,7 +88,7 @@ public class Converter {
         
         try {
             CSVParser csvParser = new CSVParser();
-            List<String[]> csvData = csvParser.parseAll(csvString);
+            List<String[]> csvData = csvParser.parseLineMulti(csvString);
             
             String[] headers = csvData.get(0);
             
@@ -103,7 +104,7 @@ public class Converter {
                     if (j == 0){
                         prodNums.add(row[j]);
                     } else if (j == 2 || j == 3){
-                        rowData.put(headers[j], Integer.parseInt(row[j]));
+                        rowData.put(headers[j], Integer.valueOf(row[j]));
                     } else {
                         rowData.put(headers[j], row[j]);
                     }
@@ -117,7 +118,7 @@ public class Converter {
      
           
             
-        } catch (IOException | ParseException e) {
+        } catch (IOException | JsonException e) {
             e.printStackTrace();
         }
         
@@ -128,7 +129,7 @@ public class Converter {
     @SuppressWarnings("unchecked")
     public static String jsonToCsv(String jsonString) {
         
-        JsonParser jsonParser = new JsonParser();
+        JsonParser JsonParser = new JsonParser();
         StringBuilder csvBuilder = new StringBuilder();
         // default return value; replace later!
         
@@ -162,7 +163,7 @@ public class Converter {
              
            
             
-       
+        } catch (JsonException e) {
             e.printStackTrace();
         }
         
