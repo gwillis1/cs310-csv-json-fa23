@@ -2,6 +2,15 @@ package edu.jsu.mcis.cs310;
 
 import com.github.cliftonlabs.json_simple.*;
 import com.opencsv.*;
+import com.opencsv.CSVParser;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Converter {
     
@@ -74,36 +83,94 @@ public class Converter {
     @SuppressWarnings("unchecked")
     public static String csvToJson(String csvString) {
         
-        String result = "{}"; // default return value; replace later!
+        JSONObject jsonResult = new JSONObject();
+        
+       // default return value; replace later!
         
         try {
-        
+            CSVParser csvParser = new CSVParser();
+            List<String[]> csvData = csvParser.parseAll(csvString);
+            
+            String[] headers = csvData.get(0);
+            
+            JSONArray prodnums = new JSONArray();
+            JSONArray colheadings = new JSONArray();
+            JSONArray data = new JSONArray();
+            
+            for(int i = 1; i < csvData.size(); i++){
+                String[] row = csvData.get(i);
+                JSONObject rowData = new JSONObject();
+                
+                for (int j = 0; j < headers.length; j++){
+                    if (j == 0){
+                        prodnums.add(row[j]);
+                    } else if (j == 2 || j == 3){
+                        rowData.put(headers[j], Integer.parseInt(row[j]));
+                    } else {
+                        rowData.put(headers[j], row[j]);
+                    }
+                }
+                data.add(rowData);
+            }
+            
+            jsonResult.put("prodnums", prodnums);
+            jsonResult.put("colheadings", colheadings);
+            jsonResult.put("Data", data);
+     
             // INSERT YOUR CODE HERE
             
         }
-        catch (Exception e) {
+        catch (IOException | ParseException e) {
             e.printStackTrace();
         }
         
-        return result.trim();
+        return jsonResult.toJSONString();
         
     }
     
     @SuppressWarnings("unchecked")
     public static String jsonToCsv(String jsonString) {
         
-        String result = ""; // default return value; replace later!
+        JSONParser jsonParser = new JSONParser();
+        StringBuilder csvBuilder = new StringBuilder();
+        // default return value; replace later!
         
         try {
+            JSONObject jsonObject = (JSONOject) jsonParser.parse(jsonString);
             
+            JSONArray prodnums = (JSONArray) jsonObject.get("Prodnums");
+            JSONArray colheadings = (JSONArray) jsonObject.get("colheadings");
+            JSONArray data = (JSONArray) jsonObject.get("Data");
+            
+            for (int i = 0; i < colheadings.size(); i++){
+                csvBuilder.append(colheadings.get(i));
+                if (i < colheadings.size() - 1){
+                    csvBuilder.append(",");
+                }
+            }
+            csvBuilder.append("\n");
+            
+            
+            for (int i = 0; i < data.size(); i++){
+                JSONObject rowData = (JSONObject) data.get(i);
+                for (int j = 0; j < colheadings.size(); j++){
+                    csvBuilder.append(rowData.get(colheadings.get(j)));
+                    if (j < colheadings.size() - 1){
+                        csvBuilder.append(",");
+                    }
+                }
+                csvBuilder.append("\n");
+            }
+            
+             
             // INSERT YOUR CODE HERE
             
         }
-        catch (Exception e) {
+        catch (ParseException e) {
             e.printStackTrace();
         }
         
-        return result.trim();
+        return csvBuilder.toString();
         
     }
     
