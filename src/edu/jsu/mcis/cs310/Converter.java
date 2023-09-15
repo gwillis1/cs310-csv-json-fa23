@@ -2,13 +2,13 @@ package edu.jsu.mcis.cs310;
 
 import com.github.cliftonlabs.json_simple.*;
 import com.opencsv.*;
-import com.opencsv.CSVParser;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.opencsv.CSVParser.*;
+import com.github.cliftonlabs.json_simple.JsonArray.*;
+import com.github.cliftonlabs.json_simple.JsonObject.*;
+import com.github.cliftonlabs.json_simple.JsonException.*;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,9 +83,7 @@ public class Converter {
     @SuppressWarnings("unchecked")
     public static String csvToJson(String csvString) {
         
-        JSONObject jsonResult = new JSONObject();
-        
-       // default return value; replace later!
+        JsonObject jsonResult = new JsonObject();
         
         try {
             CSVParser csvParser = new CSVParser();
@@ -93,17 +91,17 @@ public class Converter {
             
             String[] headers = csvData.get(0);
             
-            JSONArray prodnums = new JSONArray();
-            JSONArray colheadings = new JSONArray();
-            JSONArray data = new JSONArray();
+            JsonArray prodNums = new JsonArray();
+            JsonArray colHeadings = new JsonArray();
+            JsonArray data = new JsonArray();
             
             for(int i = 1; i < csvData.size(); i++){
                 String[] row = csvData.get(i);
-                JSONObject rowData = new JSONObject();
+                JsonObject rowData = new JsonObject();
                 
                 for (int j = 0; j < headers.length; j++){
                     if (j == 0){
-                        prodnums.add(row[j]);
+                        prodNums.add(row[j]);
                     } else if (j == 2 || j == 3){
                         rowData.put(headers[j], Integer.parseInt(row[j]));
                     } else {
@@ -113,38 +111,37 @@ public class Converter {
                 data.add(rowData);
             }
             
-            jsonResult.put("prodnums", prodnums);
-            jsonResult.put("colheadings", colheadings);
+            jsonResult.put("prodNums", prodNums);
+            jsonResult.put("colHeadings", colHeadings);
             jsonResult.put("Data", data);
      
-            // INSERT YOUR CODE HERE
+          
             
-        }
-        catch (IOException | ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
         
-        return jsonResult.toJSONString();
+        return jsonResult.toString();
         
     }
     
     @SuppressWarnings("unchecked")
     public static String jsonToCsv(String jsonString) {
         
-        JSONParser jsonParser = new JSONParser();
+        JsonParser jsonParser = new JsonParser();
         StringBuilder csvBuilder = new StringBuilder();
         // default return value; replace later!
         
         try {
-            JSONObject jsonObject = (JSONOject) jsonParser.parse(jsonString);
+            JsonObject jsonObject = (JsonObject) jsonParser.parse(jsonString);
             
-            JSONArray prodnums = (JSONArray) jsonObject.get("Prodnums");
-            JSONArray colheadings = (JSONArray) jsonObject.get("colheadings");
-            JSONArray data = (JSONArray) jsonObject.get("Data");
+            JsonArray prodNums = (JsonArray) jsonObject.get("ProdNums");
+            JsonArray colHeadings = (JsonArray) jsonObject.get("colHeadings");
+            JsonArray data = (JsonArray) jsonObject.get("Data");
             
-            for (int i = 0; i < colheadings.size(); i++){
-                csvBuilder.append(colheadings.get(i));
-                if (i < colheadings.size() - 1){
+            for (int i = 0; i < colHeadings.size(); i++){
+                csvBuilder.append(colHeadings.get(i));
+                if (i < colHeadings.size() - 1){
                     csvBuilder.append(",");
                 }
             }
@@ -152,10 +149,10 @@ public class Converter {
             
             
             for (int i = 0; i < data.size(); i++){
-                JSONObject rowData = (JSONObject) data.get(i);
-                for (int j = 0; j < colheadings.size(); j++){
-                    csvBuilder.append(rowData.get(colheadings.get(j)));
-                    if (j < colheadings.size() - 1){
+                JsonObject rowData = (JsonObject) data.get(i);
+                for (int j = 0; j < colHeadings.size(); j++){
+                    csvBuilder.append(rowData.get(colHeadings.get(j)));
+                    if (j < colHeadings.size() - 1){
                         csvBuilder.append(",");
                     }
                 }
@@ -163,10 +160,9 @@ public class Converter {
             }
             
              
-            // INSERT YOUR CODE HERE
+           
             
-        }
-        catch (ParseException e) {
+       
             e.printStackTrace();
         }
         
