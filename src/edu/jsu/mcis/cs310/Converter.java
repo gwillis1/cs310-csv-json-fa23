@@ -1,17 +1,19 @@
 package edu.jsu.mcis.cs310;
 
 import com.github.cliftonlabs.json_simple.*;
-import com.opencsv.*;
-import com.opencsv.CSVParser.*;
-import com.github.cliftonlabs.json_simple.JsonArray.*;
-import com.github.cliftonlabs.json_simple.JsonObject.*;
-import com.github.cliftonlabs.json_simple.JsonException.*;
-import com.opencsv.CSVReader.*;
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVParserWriter;
+import com.opencsv.RFC4180Parser;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+
 
 public class Converter {
     
@@ -82,93 +84,55 @@ public class Converter {
     */
     
     @SuppressWarnings("unchecked")
-    public static String csvToJson(String csvString) {
+    public static String csvToJson(String csvString) throws Exception {
         
-        JsonObject jsonResult = new JsonObject();
+        JsonArray jsonArray = new JsonArray();
         
-        try {
-            CSVParser csvParser = new CSVParser();
-            List<String[]> csvData = csvParser.parseLineMulti(csvString);
-            
-            String[] headers = csvData.get(0);
-            
-            JsonArray prodNums = new JsonArray();
-            JsonArray colHeadings = new JsonArray();
-            JsonArray data = new JsonArray();
-            
-            for(int i = 1; i < csvData.size(); i++){
-                String[] row = csvData.get(i);
-                JsonObject rowData = new JsonObject();
-                
-                for (int j = 0; j < headers.length; j++){
-                    if (j == 0){
-                        prodNums.add(row[j]);
-                    } else if (j == 2 || j == 3){
-                        rowData.put(headers[j], Integer.valueOf(row[j]));
-                    } else {
-                        rowData.put(headers[j], row[j]);
-                    }
-                }
-                data.add(rowData);
+        CSVReader csvReader = new CSVReader(new StringReader(csvString));
+        
+        String[] header = csvReader.readNext();
+       
+        if (header != null) {
+        String[] line;
+        while ((line = csvReader.readNext()) != null) {
+            JsonObject jsonObject = new JsonObject();
+            for (int i = 0; i < header.length; i++) {
+                jsonObject.put(header[i], line[i]);
             }
-            
-            jsonResult.put("prodNums", prodNums);
-            jsonResult.put("colHeadings", colHeadings);
-            jsonResult.put("Data", data);
-     
-          
-            
-        } catch (IOException | JsonException e) {
-            e.printStackTrace();
+            jsonArray.add(jsonObject);
         }
-        
-        return jsonResult.toString();
-        
     }
     
+    return jsonArray.getString(0);
+  }
     @SuppressWarnings("unchecked")
-    public static String jsonToCsv(String jsonString) {
-        
-        JsonParser JsonParser = new JsonParser();
-        StringBuilder csvBuilder = new StringBuilder();
-        // default return value; replace later!
-        
-        try {
-            JsonObject jsonObject = (JsonObject) jsonParser.parse(jsonString);
-            
-            JsonArray prodNums = (JsonArray) jsonObject.get("ProdNums");
-            JsonArray colHeadings = (JsonArray) jsonObject.get("colHeadings");
-            JsonArray data = (JsonArray) jsonObject.get("Data");
-            
-            for (int i = 0; i < colHeadings.size(); i++){
-                csvBuilder.append(colHeadings.get(i));
-                if (i < colHeadings.size() - 1){
-                    csvBuilder.append(",");
-                }
-            }
-            csvBuilder.append("\n");
-            
-            
-            for (int i = 0; i < data.size(); i++){
-                JsonObject rowData = (JsonObject) data.get(i);
-                for (int j = 0; j < colHeadings.size(); j++){
-                    csvBuilder.append(rowData.get(colHeadings.get(j)));
-                    if (j < colHeadings.size() - 1){
-                        csvBuilder.append(",");
-                    }
-                }
-                csvBuilder.append("\n");
-            }
-            
-             
-           
-            
-        } catch (JsonException e) {
-            e.printStackTrace();
+    public static String jsonToCsv(String jsonString) throws Exception {
+    JsonArray jsonArray = (JsonArray) Jsoner.deserialize(jsonString);
+    
+    StringWriter writer = new StringWriter();
+    CSVWriter csvWriter = new CSVWriter(writer);
+    
+    JsonObject firstObject = (JsonObject) jsonArray.get(0);
+    String[] header = new String[firstObject.size()];
+    int index = 0;
+    for (Object key : firstObject.keySet()) {
+        header[index++] = key.toString();
+    }
+    csvWriter.writeNext(header);
+    
+    
+    for (Object obj : jsonArray) {
+        JsonObject jsonObject = (JsonObject) obj;
+        String[] data = new String[header.length];
+        for (int i = 0; i < header.length; i++) {
+            data[i] = jsonObject.get(header[i]).toString();
         }
-        
-        return csvBuilder.toString();
-        
+        csvWriter.writeNext(data);
     }
     
+    csvWriter.close(); 
+    
+    return writer.toString();
 }
+}
+        

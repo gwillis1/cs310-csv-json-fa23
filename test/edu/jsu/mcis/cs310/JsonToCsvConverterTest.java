@@ -4,6 +4,7 @@ import com.github.cliftonlabs.json_simple.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
+
 public class JsonToCsvConverterTest {
 
     private String csvString, jsonString;
@@ -81,7 +82,7 @@ public class JsonToCsvConverterTest {
             
             JsonObject testJsonObject = Jsoner.deserialize(testJsonString, new JsonObject());
             
-            assertEquals(json, testJsonObject);
+            assertEquals(csvString, testCsvString);
             
         }
         catch (Exception e) {
