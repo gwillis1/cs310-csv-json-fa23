@@ -110,27 +110,24 @@ public class Converter {
     JsonArray jsonArray = (JsonArray) Jsoner.deserialize(jsonString);
     
     StringWriter writer = new StringWriter();
-    CSVWriter csvWriter = new CSVWriter(writer);
-    
-    JsonObject firstObject = (JsonObject) jsonArray.get(0);
-    String[] header = new String[firstObject.size()];
-    int index = 0;
-    for (Object key : firstObject.keySet()) {
-        header[index++] = key.toString();
-    }
-    csvWriter.writeNext(header);
-    
-    
-    for (Object obj : jsonArray) {
-        JsonObject jsonObject = (JsonObject) obj;
-        String[] data = new String[header.length];
-        for (int i = 0; i < header.length; i++) {
-            data[i] = jsonObject.get(header[i]).toString();
-        }
-        csvWriter.writeNext(data);
-    }
-    
-    csvWriter.close(); 
+        try (CSVWriter csvWriter = new CSVWriter(writer)) {
+            JsonObject firstObject = (JsonObject) jsonArray.get(0);
+            String[] header = new String[firstObject.size()];
+            int index = 0;
+            for (Object key : firstObject.keySet()) {
+                header[index++] = key.toString();
+            }
+            csvWriter.writeNext(header);
+            
+            
+            for (Object obj : jsonArray) {
+                JsonObject jsonObject = (JsonObject) obj;
+                String[] data = new String[header.length];
+                for (int i = 0; i < header.length; i++) {
+                    data[i] = jsonObject.get(header[i]).toString();
+                }
+                csvWriter.writeNext(data);
+            }   } 
     
     return writer.toString();
 }
