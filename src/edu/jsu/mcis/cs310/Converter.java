@@ -5,11 +5,7 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVParserWriter;
-import com.opencsv.RFC4180Parser;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -107,10 +103,12 @@ public class Converter {
   }
     @SuppressWarnings("unchecked")
     public static String jsonToCsv(String jsonString) throws Exception {
-    JsonArray jsonArray = (JsonArray) Jsoner.deserialize(jsonString);
     
-    StringWriter writer = new StringWriter();
-        try (CSVWriter csvWriter = new CSVWriter(writer)) {
+        JsonArray jsonArray = (JsonArray) Jsoner.deserialize(jsonString);
+    
+        StringWriter writer = new StringWriter();
+        
+    try (CSVWriter csvWriter = new CSVWriter(writer)) {
             JsonObject firstObject = (JsonObject) jsonArray.get(0);
             String[] header = new String[firstObject.size()];
             int index = 0;
@@ -127,9 +125,10 @@ public class Converter {
                     data[i] = jsonObject.get(header[i]).toString();
                 }
                 csvWriter.writeNext(data);
-            }   } 
+            }   
+        } 
     
-    return writer.toString();
-}
+        return writer.toString();
+    }
 }
         
